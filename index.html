@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<script>try{document.querySelector('meta[name="color-scheme"]').content=localStorage.getItem("color-scheme")??"light dark"}catch{}</script>
+<title>Dang Nguyen Duc Anh · AI Engineer</title>
+<meta name="description" content="Dang Nguyen Duc Anh (Harry Wilson): chess player turned AI Engineer building multi-agent systems, RAG platforms and Text2SQL agents in Hanoi.">
+<meta property="og:title" content="Dang Nguyen Duc Anh · AI Engineer">
+<meta property="og:description" content="Chess player turned AI Engineer: multi-agent systems, retrieval, Text2SQL agents, HNSW from scratch.">
+<meta property="og:image" content="/assets/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;600&display=swap">
+<script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+
+<!-- shared mascot art: googly-eyed pawn and the knight (DejaVu Sans U+265E outline) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="pawn-fill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#ede9fe"/><stop offset="1" stop-color="#b9b2ef"/>
+    </linearGradient>
+    <g id="pawn-body">
+      <path d="M-40,0 Q-42,-16 -27,-20 L27,-20 Q42,-16 40,0 Z M-22,-20 Q-12,-40 -12,-58 L12,-58 Q12,-40 22,-20 Z" fill="url(#pawn-fill)" stroke="#1e1b4b" stroke-width="3" stroke-linejoin="round"/>
+      <ellipse cx="0" cy="-60" rx="24" ry="6.5" fill="url(#pawn-fill)" stroke="#1e1b4b" stroke-width="3"/>
+      <circle cx="0" cy="-88" r="27" fill="url(#pawn-fill)" stroke="#1e1b4b" stroke-width="3"/>
+      <ellipse cx="-17" cy="-77" rx="5.5" ry="3" fill="#f9a8d4" opacity=".8"/>
+      <ellipse cx="18" cy="-77" rx="5.5" ry="3" fill="#f9a8d4" opacity=".8"/>
+      <path d="M-5,-76 Q0.5,-70 6,-76" fill="none" stroke="#1e1b4b" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+    <g id="knight">
+      <g transform="scale(0.07888,-0.07888) translate(-918.0,0.0)"><path d="M790 1254Q827 1277 827 1316Q827 1341 812.0 1369.5Q797 1398 797 1420Q797 1466 855 1496Q940 1415 947.5 1370.5Q955 1326 955 1313Q955 1266 921 1254H925Q925 1253 923 1253Q1459 913 1504 0H534Q521 56 521 114Q521 274 723.5 415.5Q926 557 926 670Q926 678 925 685Q859 518 742 518H732Q642 372 539 372Q535 372 532 372L580 476L473 396Q359 424 332 507Q420 736 420 926Q420 953 418 979Q466 1088 565 1192Q568 1202 568 1211Q568 1239 545.5 1252.0Q523 1265 523 1300Q523 1337 543 1403Q647 1376 703 1254ZM533 999V983Q537 953 545 953H566Q635 953 635 1002Q635 1036 678 1084H672Q576 1084 539 1020ZM424 549V525Q424 496 452 496H462Q534 511 534 564L527 598Q465 598 424 549ZM922 1174 974 1085Q1349 816 1355 52H1432Q1387 902 922 1174Z" fill="#120f3a" stroke="#fcd34d" stroke-width="2.2" vector-effect="non-scaling-stroke"/></g>
+      <circle cx="-14" cy="-86" r="7.5" fill="#fff" stroke="#120f3a" stroke-width="2"/>
+      <circle cx="-13" cy="-87" r="3.6" fill="#111"/>
+    </g>
+  </defs>
+</svg>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<a class="skip" href="#experience">Skip to content</a>
+
+<div class="dock" role="toolbar" aria-label="Site extras">
+  <button type="button" class="pill-btn" popovertarget="chat"><span aria-hidden="true">💬</span> chat</button>
+  <button type="button" class="pill-btn" id="play-btn"><span aria-hidden="true">🎮</span> play</button>
+  <button type="button" class="pill-btn" id="theme-btn">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="when-dark">day_mode<span class="visually-hidden"> (switch to light theme)</span></span>
+    <span class="when-light">night_mode<span class="visually-hidden"> (switch to dark theme)</span></span>
+  </button>
+</div>
+
+<header class="hero" id="top">
+  <div class="celestial" aria-hidden="true"></div>
+  <div class="hero-copy">
+    <p class="kicker">✦ chess player · now AI engineer ✦</p>
+    <p class="hello">Hello, I'm</p>
+    <h1 class="name" aria-label="Dang Nguyen Duc Anh"><span class="typed" aria-hidden="true" data-text="DANG NGUYEN DUC ANH"></span><span class="caret" aria-hidden="true"></span></h1>
+    <p class="starring">a.k.a. Harry Wilson · now playing as</p>
+    <p class="roles" aria-live="off">
+      <span class="role">AI Engineer</span>
+      <span class="role">Multi-agent builder</span>
+      <span class="role">RAG &amp; Text2SQL wrangler</span>
+      <span class="role">HNSW-from-scratch nerd</span>
+    </p>
+    <p class="now-pill"><svg viewBox="-46 -120 92 124" aria-hidden="true"><use href="#pawn-body"/></svg>
+      <span><b>now</b> · AI Engineer @ RIPT · UI2Code research w/ Uni Luxembourg</span></p>
+    <p class="cta">
+      <a class="btn btn-gold" href="#projects">View projects</a>
+      <a class="btn btn-ghost" href="#contact">Say hello</a>
+    </p>
+  </div>
+
+  <div class="board-wrap" aria-hidden="true"><div class="board"></div></div>
+
+  <div class="stage" aria-hidden="true">
+    <div class="bubble"><span>thinking…</span><span>calling tools…</span><span>retrieving…</span><span>checkmate!</span></div>
+    <svg class="hero-pawn" viewBox="-46 -120 92 124">
+      <use href="#pawn-body"/>
+      <g class="eyes"><circle cx="-10" cy="-92" r="9.5" fill="#fff" stroke="#1e1b4b" stroke-width="2.2"/><circle cx="11" cy="-92" r="9.5" fill="#fff" stroke="#1e1b4b" stroke-width="2.2"/></g>
+      <g class="pupils"><circle cx="-10" cy="-92" r="4.6" fill="#111"/><circle cx="11" cy="-92" r="4.6" fill="#111"/></g>
+    </svg>
+    <svg class="hero-knight" viewBox="-62 -122 124 126"><use href="#knight"/></svg>
+  </div>
+  <a class="scroll-cue" href="#stack" aria-label="Scroll to content">↓</a>
+</header>
+
+<main>
+  <section class="stack" id="stack" aria-label="Tools I use">
+    <ul class="stack-list">
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/python/python-original.svg" alt="" width="44" height="44" loading="lazy">Python</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/pytorch/pytorch-original.svg" alt="" width="44" height="44" loading="lazy">PyTorch</li>
+      <li><span class="tile">LG</span>LangGraph</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/fastapi/fastapi-original.svg" alt="" width="44" height="44" loading="lazy">FastAPI</li>
+      <li><span class="tile tile-red">Q</span>Qdrant</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/postgresql/postgresql-original.svg" alt="" width="44" height="44" loading="lazy">PostgreSQL + pgvector</li>
+      <li><span class="tile tile-yellow">🤗</span>Hugging Face</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/numpy/numpy-original.svg" alt="" width="44" height="44" loading="lazy">NumPy</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/opencv/opencv-original.svg" alt="" width="44" height="44" loading="lazy">OpenCV</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/typescript/typescript-original.svg" alt="" width="44" height="44" loading="lazy">TypeScript</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/react/react-original.svg" alt="" width="44" height="44" loading="lazy">React</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/docker/docker-original.svg" alt="" width="44" height="44" loading="lazy">Docker</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/java/java-original.svg" alt="" width="44" height="44" loading="lazy">Java</li>
+      <li><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/cplusplus/cplusplus-original.svg" alt="" width="44" height="44" loading="lazy">C++</li>
+    </ul>
+  </section>
+
+  <!-- 01 EXPERIENCE -->
+  <section class="section" id="experience" aria-labelledby="exp-title">
+    <p class="eyebrow reveal">✦ my opening moves</p>
+    <h2 id="exp-title" class="display reveal">Work<br>Experience</h2>
+    <p class="lede reveal">Every board I've played on so far, and what I built while I was there. Follow the pawn down the path.</p>
+
+    <ol class="timeline" id="timeline">
+      <li class="tl-track" aria-hidden="true"><span class="tl-fill"></span>
+        <svg class="tl-pawn" viewBox="-46 -120 92 124"><use href="#pawn-body"/>
+          <circle cx="-10" cy="-92" r="9.5" fill="#fff" stroke="#1e1b4b" stroke-width="2.2"/><circle cx="11" cy="-92" r="9.5" fill="#fff" stroke="#1e1b4b" stroke-width="2.2"/>
+          <circle cx="-9" cy="-89" r="4.6" fill="#111"/><circle cx="12" cy="-89" r="4.6" fill="#111"/></svg>
+      </li>
+
+      <li class="tl-item reveal">
+        <div class="tl-when"><p class="date">Mar 2026 — now</p><span class="badge">research</span></div>
+        <article class="card">
+          <header class="card-head"><span class="mono-logo" aria-hidden="true">UL</span>
+            <div><h3>Undergraduate Researcher · AI Agents for UI2Code</h3>
+            <p class="org">University of Luxembourg · advised by PostDoc Van-Hoang Le · remote from Hanoi</p></div></header>
+          <ul class="bullets">
+            <li>Investigating UI-to-code generation (HTML/CSS/JavaScript) with multi-step AI agents, extending a published benchmark and codebase.</li>
+            <li>Designing and running experiments on the agent's refinement loop (drafting, visual feedback, polishing) and on when it should stop.</li>
+          </ul>
+          <ul class="tags"><li>AI agents</li><li>UI2Code</li><li>evaluation</li></ul>
+        </article>
+      </li>
+
+      <li class="tl-item reveal">
+        <div class="tl-when"><p class="date">Mar 2025 — now</p><span class="badge">full-time</span></div>
+        <article class="card">
+          <header class="card-head"><span class="mono-logo" aria-hidden="true">RI</span>
+            <div><h3>AI Engineer</h3>
+            <p class="org">Research Institute of Posts and Telecommunications · Hanoi</p></div></header>
+          <ul class="bullets">
+            <li>Architected and built MASS Chatbot v2, the enterprise multi-agent chatbot and retrieval platform: a DAG pipeline on FastAPI, LangGraph and Qdrant with parallel nodes, automatic fallbacks and real-time SSE streaming across <b>110+ production bots</b>.</li>
+            <li>Showed that the documentation-search logic tripled retrieval latency, and fixed it: <b>15.96 ms → 6.86 ms</b> on average.</li>
+            <li>Distilled conversational agent policies from cloud LLMs into a local open-weights model with full fine-tuning on <b>110k+ chat messages</b>, replacing about $1k a month of API calls with rented hardware.</li>
+            <li>Designed the Qdrant and message services for the internal chatbot system; keyword queries went from <b>95 ms → 5 ms</b> with maintained term statistics.</li>
+          </ul>
+          <ul class="tags"><li>LangGraph</li><li>FastAPI</li><li>Qdrant</li><li>SSE</li><li>fine-tuning</li></ul>
+        </article>
+      </li>
+
+      <li class="tl-item reveal">
+        <div class="tl-when"><p class="date">→ May 2027</p><span class="badge">education</span></div>
+        <article class="card">
+          <header class="card-head"><span class="mono-logo" aria-hidden="true">PT</span>
+            <div><h3>B.S. Information Technology</h3>
+            <p class="org">Posts and Telecommunications Institute of Technology (PTIT) · Hanoi · expected May 2027</p></div></header>
+          <ul class="bullets"><li>Majors: AI, data science, machine learning and deep learning. Minors: software engineering, maths.</li></ul>
+          <ul class="tags"><li>AI</li><li>ML / DL</li><li>SWE</li></ul>
+        </article>
+      </li>
+    </ol>
+    <ul class="chips reveal" aria-label="More about me">
+      <li>♟ grew up playing chess</li><li>Vietnamese (native) · English (IELTS 6.0)</li><li>Hanoi, VN</li>
+    </ul>
+  </section>
+
+  <!-- 02 PROJECTS -->
+  <section class="section" id="projects" aria-labelledby="proj-title">
+    <p class="eyebrow reveal">✦ the opening book</p>
+    <h2 id="proj-title" class="display reveal">Projects</h2>
+    <p class="lede reveal">Things I've built and pinned. Flip through them.</p>
+
+    <div class="carousel reveal" aria-roledescription="carousel" aria-label="Projects">
+      <div class="carousel-controls">
+        <button type="button" class="arrow" data-direction="previous" aria-label="Previous project">←</button>
+        <button type="button" class="arrow" data-direction="next" aria-label="Next project">→</button>
+      </div>
+      <div class="carousel-track" tabindex="0" role="group" aria-label="Project slides">
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5" data-marker-name="Vector Search Engine">
+          <div class="visual term" aria-hidden="true">
+            <p class="term-bar"><i></i><i></i><i></i> real_benchmark.py</p>
+<pre>$ python real_benchmark.py 120000
+120,000 AG News docs x 384 dims (MiniLM)
+exact, NumPy:  8.62 ms/query
+engine                  ef  recall@10  ms
+ours M=16 efC=100       16      0.917  0.20
+ours M=16 efC=100       32      0.960  0.31
+<b>ours M=16 efC=100       64      0.982  0.52</b>
+ours M=16 efC=100      128      0.994  0.94
+<span class="ok">→ 16.6x faster than exact search</span></pre>
+          </div>
+          <div class="slide-text">
+            <p class="slide-num">01 / 05 · <span>from scratch</span></p>
+            <h3>Vector Search Engine</h3>
+            <p class="tagline">Search by meaning, with every index written by hand.</p>
+            <p>Exact search and an HNSW index in NumPy, no FAISS or hnswlib: per-layer graph, the paper's diversity-based neighbor selection, beam search, pickle-free persistence. Recall lands within 0.004 of hnswlib at identical settings.</p>
+            <p><b>0.98 recall@10 at 0.52 ms</b> on 120k real sentence embeddings, 16.6× faster than single-thread exact search. Against a pure-Python HNSW on the same eval: 0.91 vs 0.62 recall@10, ~34× faster.</p>
+            <p class="stack-line">python · numpy · sentence-transformers</p>
+            <a class="gh" href="https://github.com/dangnguyenducanh/vector_search-from-scratch">github →</a>
+          </div>
+        </article>
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="2 of 5" data-marker-name="Energy Copilot">
+          <div class="visual term" aria-hidden="true">
+            <p class="term-bar"><i></i><i></i><i></i> example run (illustrative)</p>
+<pre>&gt; "how much did the fridge cost last week?"
+route   skill: appliance_cost       bge-m3 · pgvector HNSW
+plan    {appliance: fridge, range: last_week,
+         metric: cost}             ← LLM fills the plan
+guard   sqlglot <span class="ok">✓</span>  read-only <span class="ok">✓</span>  one home <span class="ok">✓</span>
+sql     SELECT … WHERE home_id = $1
+          AND ts &gt;= $2 AND ts &lt; $3   ← compiled by code
+answer  every number traces to a query row</pre>
+          </div>
+          <div class="slide-text">
+            <p class="slide-num">02 / 05 · <span>agents</span></p>
+            <h3>Energy Copilot (Text2SQL agent)</h3>
+            <p class="tagline">Ask about your home's electricity in plain language.</p>
+            <p>An 11-node LangGraph agent answering questions on household electricity use, cost and savings over smart-meter and NILM time series. The LLM fills a query plan, and code compiles it to parameterized SQL.</p>
+            <p>Every query passes a sqlglot guard, runs read-only and scoped to one home, and every number in an answer traces to a query result. Routes across <b>11 skills and 25 tools</b>: skill hit@1 <b>1.0</b>, tool precision/recall <b>0.786 / 0.964</b> on a 28-case end-to-end set.</p>
+            <p class="stack-line">python · fastapi · timescaledb · pgvector · langgraph</p>
+            <a class="gh" href="https://github.com/dangnguyenducanh/environmental-text2sql-">github →</a>
+          </div>
+        </article>
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="3 of 5" data-marker-name="autoresearch">
+          <div class="visual term" aria-hidden="true">
+            <p class="term-bar"><i></i><i></i><i></i> research-program.md</p>
+<pre>round  data  compute  runs  purpose
+R0     1/4   1×       4     baseline + σ₀ (noise band)
+R1     1/4   1×       ~25   wide screening, one axis each
+R2     1/2   2×       ~12   does it hold on more data?
+R3     full  4×       ~5    final config, test shard
+
+keep a change only if Δval_bpb &gt; 2σ   <span class="ok">✓</span>
+budget = one pass over the round's data, no clock
+<b>headline: test_bpb − val_bpb</b></pre>
+          </div>
+          <div class="slide-text">
+            <p class="slide-num">03 / 05 · <span>research</span></p>
+            <h3>autoresearch, with human gates</h3>
+            <p class="tagline">An AI agent runs LLM training experiments; a human reviews each round.</p>
+            <p>A fork of karpathy/autoresearch that replaces the overnight keep-if-lower loop with a three-round protocol at 1/4, 1/2 and full data, pausing for review after each round.</p>
+            <p>A change is kept only if it clears <b>2σ of measured seed noise</b>. Runs stop on tokens instead of wall clock, so results reproduce on any GPU, and a sealed test shard measures how much the validation set was overfit.</p>
+            <p class="stack-line">python · pytorch · uv · nanochat</p>
+            <a class="gh" href="https://github.com/dangnguyenducanh/autoresearch_dnda">github →</a>
+          </div>
+        </article>
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="4 of 5" data-marker-name="YouTube Summarizer">
+          <div class="visual term" aria-hidden="true">
+            <p class="term-bar"><i></i><i></i><i></i> ytb · 127.0.0.1:18500</p>
+<pre>$ uv run python -m ytb.api
+model  Qwen/Qwen3-0.6B   transcripts: captions → whisper
+
+POST /api/summarize {"url": "https://youtu.be/…"}
+
+Overview: …
+Key points:
+- …  (3–5 per ~8 min of speech, in order)
+- …
+Takeaway: …</pre>
+          </div>
+          <div class="slide-text">
+            <p class="slide-num">04 / 05 · <span>fine-tuning</span></p>
+            <h3>YouTube Summarizer</h3>
+            <p class="tagline">Paste a link, get structured notes from a 0.6B model.</p>
+            <p>Uses the video's captions, or downloads and transcribes it locally with faster-whisper. Long videos are split into parts of up to 2,048 tokens, each giving 3–5 key points, and the overview and takeaway are written from those points.</p>
+            <p>Fine-tuning Qwen3 0.6B and benchmarking it for <b>faithfulness</b> on a golden set of 50 transcripts. FastAPI backend, one static page with no build step. <i>(in progress)</i></p>
+            <p class="stack-line">pytorch · hugging face · fastapi · faster-whisper</p>
+            <a class="gh" href="https://github.com/dangnguyenducanh/ytb">github →</a>
+          </div>
+        </article>
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="5 of 5" data-marker-name="The Healthy Lab">
+          <div class="visual shot"><img src="/assets/healthy-lab.jpg" alt="The Healthy Lab home page" width="1280" height="800" loading="lazy"></div>
+          <div class="slide-text">
+            <p class="slide-num">05 / 05 · <span>full-stack</span></p>
+            <h3>The Healthy Lab</h3>
+            <p class="tagline">A healthy restaurant online: order, build a bowl, book a table.</p>
+            <p>Online ordering, a build-your-own bowl priced live by the server, table booking with a walk-in queue, and role-based dashboards for the kitchen, cashier, delivery, dining room and admin.</p>
+            <p>Next.js 16 and FastAPI as two Vercel projects, Postgres 17 on Supabase with row-level security, JWT auth with CSRF checks and a CSP nonce on every request. Built for my Web Programming class.</p>
+            <p class="stack-line">next.js · fastapi · postgresql · jwt</p>
+            <a class="gh" href="https://github.com/dangnguyenducanh/The-Healthy-Lab">github →</a>
+          </div>
+        </article>
+      </div>
+      <p class="visually-hidden" role="status" aria-live="polite" id="carousel-status"></p>
+      <nav class="carousel-markers" aria-label="Choose a project"></nav>
+    </div>
+  </section>
+
+  <!-- 03 ABOUT -->
+  <section class="section paper reveal" id="about" aria-labelledby="about-title">
+    <div class="about-text">
+      <h2 id="about-title"><span class="num">03</span> About me</h2>
+      <p>I grew up as a chess player. For years my evenings went to a board: calculating lines, studying openings and learning to lose gracefully. Chess taught me to think several moves ahead and to treat every mistake as something to study rather than hide.</p>
+      <p>Programming found me through the same curiosity. The first time code I wrote actually worked, it felt like solving a puzzle where I also got to design the board. Small scripts, then web apps, then systems that reason on their own.</p>
+      <p>Today I build multi-agent LLM systems and retrieval platforms at RIPT, research UI-to-code agents with the University of Luxembourg, and finish my B.S. at PTIT. I'm still playing chess, really. Now the pieces are agents.</p>
+      <p class="muted">Happy to talk about LangGraph, RAG, Text2SQL, document AI and agent evaluation.</p>
+    </div>
+    <div class="polaroids" aria-hidden="true">
+      <span class="lights"></span>
+      <figure class="polaroid p1"><img src="https://github.com/dangnguyenducanh.png?size=300" alt="" width="150" height="150" loading="lazy"><figcaption>hi, it's me</figcaption></figure>
+      <figure class="polaroid p2"><span class="mini-board"></span><figcaption>where it started</figcaption></figure>
+      <figure class="polaroid p3"><span class="mini-term">$ python agent.py<br>&gt; checkmate.</span><figcaption>where it went</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 04 CONTACT -->
+  <section class="section contact reveal" id="contact" aria-labelledby="contact-title">
+    <p class="mono-label"><span class="num">04</span> — say hello</p>
+    <h2 id="contact-title">The board is set.<br>Your move<span class="gold">.</span></h2>
+    <p class="contact-links">
+      <button type="button" class="btn btn-gold" id="text-me-btn">💬 text_me</button>
+      <a class="btn btn-ghost" href="mailto:ducanhdn.ptit@gmail.com">✉ email_me</a>
+      <button type="button" class="btn btn-ghost" popovertarget="chat">♟ ask_my_bot</button>
+      <a class="btn btn-ghost" href="https://github.com/dangnguyenducanh">github</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/dangnguyenducanh">linkedin</a>
+    </p>
+    <p class="copy-row">or copy it:
+      <code id="email">ducanhdn.ptit@gmail.com</code>
+      <span class="copy"><button type="button" class="copy-button" command="--copy" commandfor="email" aria-label="Copy email address">copy</button><span class="tip" role="status"></span></span>
+    </p>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>© 2026 Dang Nguyen Duc Anh · built by hand, no frameworks</p>
+  <p>Hanoi ✦ somewhere on the 64 squares</p>
+</footer>
+
+<!-- chat: non-modal side panel, the page stays usable -->
+<dialog id="chat" popover="manual" aria-labelledby="chat-title">
+  <header class="chat-head">
+    <span class="avatar" aria-hidden="true">♟</span>
+    <div><h2 id="chat-title">Duc Anh (bot)</h2><p>answers from my CV · no LLM inside</p></div>
+    <button type="button" class="close" popovertarget="chat" popovertargetaction="hide" aria-label="Close chat">×</button>
+  </header>
+  <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
+  <div class="chat-suggest" id="chat-suggest"></div>
+  <form class="chat-form" id="chat-form">
+    <label class="visually-hidden" for="chat-input">Ask a question</label>
+    <input id="chat-input" name="q" autocomplete="off" placeholder="Ask about my work, projects, stack…">
+    <button type="submit" aria-label="Send">↑</button>
+  </form>
+</dialog>
+
+<!-- game: modal -->
+<dialog id="game" closedby="any" aria-labelledby="game-title">
+  <header class="game-head">
+    <h2 id="game-title">pawn climb ♟</h2>
+    <p class="game-score" aria-live="off"><span id="g-score">0</span> · best <span id="g-best">0</span></p>
+    <form method="dialog"><button class="close" aria-label="Close game">×</button></form>
+  </header>
+  <div class="game-body">
+    <canvas id="game-canvas" width="360" height="520" aria-label="Pawn climb game. Arrow keys or A and D to move, space to start."></canvas>
+    <aside class="board-of-fame" aria-labelledby="fame-title">
+      <h3 id="fame-title">hall of fame</h3>
+      <ol id="fame-list"><li class="muted">loading…</li></ol>
+      <form id="score-form" class="score-form" hidden>
+        <label for="score-name">you scored <b id="score-final">0</b>! name for the board:</label>
+        <input id="score-name" name="name" maxlength="16" required pattern="[\w .\-]{1,16}" autocomplete="nickname" placeholder="your name">
+        <button type="submit" class="btn btn-gold">save score</button>
+        <p class="form-note" role="status" id="score-status"></p>
+      </form>
+    </aside>
+  </div>
+  <p class="game-help">← → / A D to move · space or tap to start · grab ♛ for +5 · reach rank 8 to promote</p>
+</dialog>
+
+<!-- text me: modal message form, stored in Postgres -->
+<dialog id="text-me" closedby="any" aria-labelledby="text-me-title">
+  <form id="text-me-form" class="text-me-form">
+    <header class="game-head"><h2 id="text-me-title">text me ✉</h2>
+      <button type="button" class="close" id="text-me-close" aria-label="Close">×</button></header>
+    <label for="tm-name">your name</label>
+    <input id="tm-name" name="name" required maxlength="80" autocomplete="name">
+    <label for="tm-contact">how to reach you <span class="muted">(email or link, optional)</span></label>
+    <input id="tm-contact" name="contact" maxlength="120" autocomplete="email">
+    <label for="tm-body">message</label>
+    <textarea id="tm-body" name="body" required maxlength="2000" rows="5"></textarea>
+    <div class="hp" aria-hidden="true"><label for="tm-website">website</label><input id="tm-website" name="website" tabindex="-1" autocomplete="off"></div>
+    <button type="submit" class="btn btn-gold">send it</button>
+    <p class="form-note" role="status" id="tm-status"></p>
+  </form>
+</dialog>
+</body>
+</html>
