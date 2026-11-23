@@ -44,7 +44,8 @@ KB = [
      "Majors: AI, data science, ML and DL; minors: software engineering and maths."),
     ("projects", "projects portfolio built build github pinned side work showcase",
      "Pinned projects: a vector search engine with HNSW written from scratch, Energy Copilot (a Text2SQL agent), autoresearch with human gates, "
-     "a YouTube summarizer on Qwen3-0.6B, and The Healthy Lab (a full-stack restaurant site). Ask about any of them!"),
+     "a YouTube summarizer on Qwen3-0.6B, The Healthy Lab (a full-stack restaurant site), and a personal finance app with Zalo and Telegram bots. "
+     "Ask about any of them!"),
     ("vector-search", "vector search engine hnsw embeddings ann nearest neighbor neighbour from scratch numpy faiss hnswlib recall",
      "Vector Search Engine: exact search plus an HNSW index written from scratch in NumPy (no FAISS/hnswlib). Recall within 0.004 of hnswlib at identical settings, "
      "0.98 recall@10 at 0.52 ms on 120k real sentence embeddings (16.6× faster than single-thread exact search)."),
@@ -60,6 +61,10 @@ KB = [
     ("healthy-lab", "healthy lab restaurant website web nextjs next ordering order bowl booking table full stack supabase",
      "The Healthy Lab is a full-stack restaurant site for his Web Programming class: ordering, a live-priced bowl builder, table booking and staff dashboards, "
      "built with Next.js 16 + FastAPI on Vercel and Postgres on Supabase with row-level security."),
+    ("finance-bots", "finance money expense expenses spending budget wallet personal zalo telegram bot bots chat receipt mongodb express react",
+     "His personal finance app (Zalo-Tele-intergrated-financial-apps) has Telegram and Zalo bots: send \"phở 45k\" or a receipt photo, confirm the draft, "
+     "and it becomes a transaction, with wallets, categories, monthly budgets and stats in the web app. React + TypeScript, Express 5 and MongoDB Atlas on Vercel, "
+     "a rule-based text parser (no LLM) and PaddleOCR + KIE for receipts. Built solo in 29 reviewed PRs with 366 automated tests; live at sochitieu-btl.vercel.app since November 2026."),
     ("stack", "skills stack tools languages technologies tech frameworks libraries python typescript java pytorch",
      "Languages: Python, TypeScript, Java, C++, C#. Frameworks: PyTorch, OpenCV, LangGraph, LangChain, FastAPI, Streamlit. "
      "Data and tools: PostgreSQL, pgvector, Qdrant, Hugging Face, Git, Pytest, Pydantic, tree-sitter."),

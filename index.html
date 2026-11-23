@@ -183,7 +183,7 @@
       </div>
       <div class="carousel-track" tabindex="0" role="group" aria-label="Project slides">
 
-        <article class="slide" role="group" aria-roledescription="slide" aria-label="1 of 5" data-marker-name="Vector Search Engine">
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6" data-marker-name="Vector Search Engine">
           <div class="visual term" aria-hidden="true">
             <p class="term-bar"><i></i><i></i><i></i> real_benchmark.py</p>
 <pre>$ python real_benchmark.py 120000
@@ -197,7 +197,7 @@ ours M=16 efC=100      128      0.994  0.94
 <span class="ok">→ 16.6x faster than exact search</span></pre>
           </div>
           <div class="slide-text">
-            <p class="slide-num">01 / 05 · <span>from scratch</span></p>
+            <p class="slide-num">01 / 06 · <span>from scratch</span></p>
             <h3>Vector Search Engine</h3>
             <p class="tagline">Search by meaning, with every index written by hand.</p>
             <p>Exact search and an HNSW index in NumPy, no FAISS or hnswlib: per-layer graph, the paper's diversity-based neighbor selection, beam search, pickle-free persistence. Recall lands within 0.004 of hnswlib at identical settings.</p>
@@ -207,7 +207,7 @@ ours M=16 efC=100      128      0.994  0.94
           </div>
         </article>
 
-        <article class="slide" role="group" aria-roledescription="slide" aria-label="2 of 5" data-marker-name="Energy Copilot">
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="2 of 6" data-marker-name="Energy Copilot">
           <div class="visual term" aria-hidden="true">
             <p class="term-bar"><i></i><i></i><i></i> example run (illustrative)</p>
 <pre>&gt; "how much did the fridge cost last week?"
@@ -220,7 +220,7 @@ sql     SELECT … WHERE home_id = $1
 answer  every number traces to a query row</pre>
           </div>
           <div class="slide-text">
-            <p class="slide-num">02 / 05 · <span>agents</span></p>
+            <p class="slide-num">02 / 06 · <span>agents</span></p>
             <h3>Energy Copilot (Text2SQL agent)</h3>
             <p class="tagline">Ask about your home's electricity in plain language.</p>
             <p>An 11-node LangGraph agent answering questions on household electricity use, cost and savings over smart-meter and NILM time series. The LLM fills a query plan, and code compiles it to parameterized SQL.</p>
@@ -230,7 +230,7 @@ answer  every number traces to a query row</pre>
           </div>
         </article>
 
-        <article class="slide" role="group" aria-roledescription="slide" aria-label="3 of 5" data-marker-name="autoresearch">
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="3 of 6" data-marker-name="autoresearch">
           <div class="visual term" aria-hidden="true">
             <p class="term-bar"><i></i><i></i><i></i> research-program.md</p>
 <pre>round  data  compute  runs  purpose
@@ -244,7 +244,7 @@ budget = one pass over the round's data, no clock
 <b>headline: test_bpb − val_bpb</b></pre>
           </div>
           <div class="slide-text">
-            <p class="slide-num">03 / 05 · <span>research</span></p>
+            <p class="slide-num">03 / 06 · <span>research</span></p>
             <h3>autoresearch, with human gates</h3>
             <p class="tagline">An AI agent runs LLM training experiments; a human reviews each round.</p>
             <p>A fork of karpathy/autoresearch that replaces the overnight keep-if-lower loop with a three-round protocol at 1/4, 1/2 and full data, pausing for review after each round.</p>
@@ -254,7 +254,7 @@ budget = one pass over the round's data, no clock
           </div>
         </article>
 
-        <article class="slide" role="group" aria-roledescription="slide" aria-label="4 of 5" data-marker-name="YouTube Summarizer">
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="4 of 6" data-marker-name="YouTube Summarizer">
           <div class="visual term" aria-hidden="true">
             <p class="term-bar"><i></i><i></i><i></i> ytb · 127.0.0.1:18500</p>
 <pre>$ uv run python -m ytb.api
@@ -269,7 +269,7 @@ Key points:
 Takeaway: …</pre>
           </div>
           <div class="slide-text">
-            <p class="slide-num">04 / 05 · <span>fine-tuning</span></p>
+            <p class="slide-num">04 / 06 · <span>fine-tuning</span></p>
             <h3>YouTube Summarizer</h3>
             <p class="tagline">Paste a link, get structured notes from a 0.6B model.</p>
             <p>Uses the video's captions, or downloads and transcribes it locally with faster-whisper. Long videos are split into parts of up to 2,048 tokens, each giving 3–5 key points, and the overview and takeaway are written from those points.</p>
@@ -279,16 +279,41 @@ Takeaway: …</pre>
           </div>
         </article>
 
-        <article class="slide" role="group" aria-roledescription="slide" aria-label="5 of 5" data-marker-name="The Healthy Lab">
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="5 of 6" data-marker-name="The Healthy Lab">
           <div class="visual shot"><img src="/assets/healthy-lab.jpg" alt="The Healthy Lab home page" width="1280" height="800" loading="lazy"></div>
           <div class="slide-text">
-            <p class="slide-num">05 / 05 · <span>full-stack</span></p>
+            <p class="slide-num">05 / 06 · <span>full-stack</span></p>
             <h3>The Healthy Lab</h3>
             <p class="tagline">A healthy restaurant online: order, build a bowl, book a table.</p>
             <p>Online ordering, a build-your-own bowl priced live by the server, table booking with a walk-in queue, and role-based dashboards for the kitchen, cashier, delivery, dining room and admin.</p>
             <p>Next.js 16 and FastAPI as two Vercel projects, Postgres 17 on Supabase with row-level security, JWT auth with CSRF checks and a CSP nonce on every request. Built for my Web Programming class.</p>
             <p class="stack-line">next.js · fastapi · postgresql · jwt</p>
             <a class="gh" href="https://github.com/dangnguyenducanh/The-Healthy-Lab">github →</a>
+          </div>
+        </article>
+
+        <article class="slide" role="group" aria-roledescription="slide" aria-label="6 of 6" data-marker-name="Finance Bots">
+          <div class="visual term" aria-hidden="true">
+            <p class="term-bar"><i></i><i></i><i></i> telegram · @sochitieu_btl_bot (example chat)</p>
+<pre>&gt; phở 45k
+📝 Chi 45.000 ₫ · Ăn uống · Tiền mặt
+   · 22/11/2026 · phở
+   [✅ Lưu]  [❌ Huỷ]  [✏️ Sửa]
+<span class="ok">✅ Đã lưu: Chi 45.000 ₫ · Ăn uống …</span>
+⚠️ Ngân sách "Ăn uống" đã dùng 82% (…)
+
+&gt; [ảnh hoá đơn]
+🧾 Đang đọc hoá đơn…
+<b>🧾 8 dòng hàng · cộng lại khớp tổng tiền</b></pre>
+          </div>
+          <div class="slide-text">
+            <p class="slide-num">06 / 06 · <span>chat bots</span></p>
+            <h3>Zalo + Telegram Finance App</h3>
+            <p class="tagline">Text the bot "phở 45k" and it lands in your budget.</p>
+            <p>A personal finance web app with Telegram and Zalo bots: send a line like <i>phở 45k</i> or a receipt photo, confirm the draft, and it becomes a transaction. Wallets, categories, monthly budgets with alerts and stats, in Vietnamese and English.</p>
+            <p>A rule-based parser reads amounts, dates and wallets with no LLM; receipts go through PaddleOCR + KIE. Built solo in 29 reviewed PRs: <b>366 automated tests</b> (Vitest + Playwright) and 33 bugs found and fixed. Live on Vercel.</p>
+            <p class="stack-line">react · typescript · express · mongodb · bot webhooks</p>
+            <p><a class="gh" href="https://github.com/dangnguyenducanh/Zalo-Tele-intergrated-financial-apps">github →</a>&ensp;·&ensp;<a class="gh" href="https://sochitieu-btl.vercel.app">live app →</a></p>
           </div>
         </article>
       </div>
